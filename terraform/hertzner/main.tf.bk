@@ -1,0 +1,44 @@
+variable "hcloud_token" {
+  sensitive     = true # Requires terraform >= 0.14
+  default       = "VLNR0QZk7FhuCAjEWuP7yNWf63CJLhMkMLGIcFdxsQXjsP1nOqofgUSSZph75YXp"
+}
+ 
+
+terraform {
+  required_providers {
+    hcloud      = {
+      source    = "hetznercloud/hcloud"
+      version   = "1.31.1"
+    }
+  }
+}
+
+# Configure the Hetzner Cloud Provider
+provider "hcloud" {
+  token         = var.hcloud_token
+}
+
+# Create a new SSH key
+resource "hcloud_ssh_key" "default" {
+  name          = "Terraform"
+  public_key    = file("~/.ssh/id_rsa.pub")
+}
+
+
+resource "hcloud_server" "terraform" {
+  name          = "terraform"
+  server_type   = "cx11"
+  image         = "ubuntu-18.04"
+  location      = "nbg1"
+  ssh_keys      = ["Terraform","samira"]
+}
+
+
+output "ipv4" {
+  value         =  "${hcloud_server.terraform.ipv4_address}"
+}
+
+output "name" {
+  value         =  "${hcloud_server.terraform.name}"
+}
+
